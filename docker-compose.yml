@@ -1,0 +1,50 @@
+version: "3.8"
+
+services:
+
+  back:
+    image: appointme-back
+    container_name: appointme-back
+    build: ./back
+    restart: always
+    volumes:
+      - ./back/app:/app
+      - /app/node_modules
+      - /app/build
+    networks:
+      - backend
+
+  front:
+    image: appointme-front
+    container_name: appointme-front
+    build: ./front
+    volumes:
+      - ./front/app:/app
+      - /app/node_modules
+
+  nginx:
+    image: nginx:stable
+    container_name: appointme-nginx
+    restart: always
+    volumes:
+      - ./front/app:/web
+      - ./nginx/server.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - backend
+    ports:
+      - 80:80
+
+  mysql:
+    image: mysql:5.7
+    container_name: appointme-mysql
+    restart: always
+    volumes:
+      - ./mysql/volume:/var/lib/mysql
+    ports:
+      - 3306:3306
+    environment:
+      - MYSQL_ROOT_PASSWORD=[PASSWORD]
+
+networks:
+
+  backend:
